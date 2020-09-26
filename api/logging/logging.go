@@ -9,7 +9,7 @@ import (
 
 // CreateLogFile creates a new log file at the specified path using a given application name and the current time & date
 func CreateLogFile(logPath string, appName string) (*os.File, error) {
-	f, err := os.OpenFile(fmt.Sprintf("%s/log_%s_%s", logPath, appName, getTimeFormatted()), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile(fmt.Sprintf("%s/log_%s_%s.log", logPath, appName, getTimeFormatted()), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 		return nil, err
