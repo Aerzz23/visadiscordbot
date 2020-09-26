@@ -1,2 +1,2 @@
-# visadiscordbot
-A Discord bot for Visa Inc. games social Discord channel 
+# Visa Games Social Discord Bot
+A Discord bot for Visa games social Discord channel!
