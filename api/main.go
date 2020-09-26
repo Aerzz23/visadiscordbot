@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 
+	"github.com/aerzz23/visadiscordbot/api/logging"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -19,7 +20,9 @@ var appName string
 var logPath string
 
 func main() {
-	f, err := CreateLogFile(logPath, appName)
+	f, err := logging.CreateLogFile(logPath, appName)
+	defer f.Close()
+
 	discord, err := discordgo.New("Bot" + token)
 
 	if err != nil {
