@@ -2,8 +2,13 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
+	"github.com/aerzz23/visadiscordbot/api/handlers"
 	"github.com/aerzz23/visadiscordbot/api/logging"
 	"github.com/bwmarrin/discordgo"
 )
@@ -23,7 +28,7 @@ func main() {
 	f, err := logging.CreateLogFile(logPath, appName)
 	defer f.Close()
 
-	discord, err := discordgo.New("Bot" + token)
+	discord, err := discordgo.New("Bot " + token)
 
 	if err != nil {
 		log.Println("Error creating Discord session - please check Token")
@@ -32,5 +37,19 @@ func main() {
 
 	log.Println(discord.Token)
 
-	// discord.AddHandler()
+	log.Println("Adding handler for MessageCreate")
+	discord.AddHandler(handlers.MessageCreateHandler)
+
+	log.Println("Opening websocket to Discord")
+	discord.Open()
+	defer discord.Close()
+
+	log.Println("Bot up and running!")
+	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
+
+	// Wait until signal is written to channel before killing bot
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	<-sc
+	log.Println("Kill signal received - exiting bot...")
 }
