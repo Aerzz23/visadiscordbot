@@ -16,3 +16,6 @@ vendor/
 
 # Ignore log files
 *.log
+
+# Ignore BoltDB files
+*.db

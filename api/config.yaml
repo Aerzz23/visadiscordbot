@@ -1,0 +1,10 @@
+# config.yaml
+
+db:
+    name: discordbot.db
+    mode: 0600
+logging:
+    # Change to local path - will update later for docker location 
+    path: /home/aerzz/proj/visabot
+app:
+    name: visadiscordbot

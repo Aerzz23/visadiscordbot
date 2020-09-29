@@ -5,7 +5,7 @@ VisaDiscordBot is a Discord Bot written in Go for the Visa Discord Channel.
 
 These instructions will help you get a copy of the project up and running on your local machine. 
 
-See also instructions for Docker Compose for local MySQL instance.
+Additonal instructions are also provided for Docker.
 ### Prerequisites
 * [Go 1.15](https://golang.org/dl/)
 * [Docker](https://www.docker.com/products/docker-desktop)
@@ -14,11 +14,13 @@ See also instructions for Docker Compose for local MySQL instance.
 ```
 git clone https://github.com/Aerzz23/visadiscordbot.git
 cd visadiscordbot
-go run api/main.go -t "your_discord_api_token" -n "your_app_name" -l "your_log_location"
+go get -u 
+go run api/main.go -t "your_discord_api_token" -c "config_path"
 ```
 
 ## Built With
 * [Go 1.15](https://golang.org/doc/) - Programming Language
+* [BoltDB](https://github.com/boltdb/bolt) - Database
 * [Docker](https://docs.docker.com/) - Containerization
 * [discordgo](https://github.com/bwmarrin/discordgo) - Go bindings for Discord
 
