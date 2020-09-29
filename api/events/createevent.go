@@ -30,7 +30,7 @@ func New(eventDate string, eventTime string, eventName string, eventInfo string,
 		log.Fatalf("Error parsing new event date: %s, error: %v", eventDate, err)
 		return nil, err
 	}
-	eventTimeParsed, err := time.Parse("15:04:05", eventTime)
+	eventTimeParsed, err := time.Parse("15:04", eventTime)
 	if err != nil {
 		log.Fatalf("Error parsing new event time: %s, error: %v", eventDate, err)
 		return nil, err
@@ -53,7 +53,7 @@ func New(eventDate string, eventTime string, eventName string, eventInfo string,
 func (e *Event) Create(db *bolt.DB) error {
 	// serialize event ready for easy insert into BoltDB
 	eventSerialized, err := json.Marshal(e)
-	if e != nil {
+	if err != nil {
 		log.Fatalf("Error serializing event: %v", err)
 		return err
 	}
