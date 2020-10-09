@@ -9,13 +9,13 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${fileDirname}",
+            "program": "${workspaceFolder}/api",
             "env": {},
             "args": [
                 "-t",
                 "replace_with_your_discord_token",
                 "-c",
-                "replace_with_your_config_dir"]
+                "replace_with_your_config_path"]
         }
     ]
 }

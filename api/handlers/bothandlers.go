@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/aerzz23/visadiscordbot/api/config"
 	"github.com/boltdb/bolt"
 	"github.com/bwmarrin/discordgo"
 )
@@ -13,10 +14,11 @@ type BotHandlers interface {
 
 // BotHandlersImpl is a struct which has all handlers as receivers and stores state for handlers.
 type BotHandlersImpl struct {
-	db *bolt.DB
+	cfg *config.BotConfig
+	db  *bolt.DB
 }
 
 // New creates a new instance of BotHandlersImpl, storing BoltDB session.
-func New(db *bolt.DB) *BotHandlersImpl {
-	return &BotHandlersImpl{db: db}
+func New(cfg *config.BotConfig, db *bolt.DB) *BotHandlersImpl {
+	return &BotHandlersImpl{cfg: cfg, db: db}
 }

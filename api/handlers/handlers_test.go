@@ -5,6 +5,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/aerzz23/visadiscordbot/api/config"
 	"github.com/aerzz23/visadiscordbot/api/handlers"
 )
 
@@ -14,7 +15,7 @@ var _ = Describe("Bothandlers", func() {
 	)
 
 	BeforeEach(func() {
-		testBotHandlers = handlers.New(&bolt.DB{})
+		testBotHandlers = handlers.New(&config.BotConfig{}, &bolt.DB{})
 	})
 
 	Describe("BotHandlers has been initialized", func() {

@@ -8,28 +8,15 @@ import (
 	"os/signal"
 	"syscall"
 
-	"gopkg.in/yaml.v2"
-
+	"github.com/aerzz23/visadiscordbot/api/config"
 	"github.com/aerzz23/visadiscordbot/api/handlers"
 	"github.com/aerzz23/visadiscordbot/api/logging"
 	"github.com/boltdb/bolt"
 	"github.com/bwmarrin/discordgo"
 )
 
-type botConfig struct {
-	DB struct {
-		Name string      `yaml:"name"`
-		Mode os.FileMode `yaml:"mode"`
-	} `yaml:"db"`
-	Logging struct {
-		Path string `yaml:"path"`
-	} `yaml:"logging"`
-	App struct {
-		Name string `yaml:"name"`
-	} `yaml:"app"`
-}
-
 func init() {
+	// TODO change this to be environment variables
 	flag.StringVar(&token, "t", "", "Bot Token")
 	flag.StringVar(&cfgPath, "c", "config.yaml", "Config file")
 	flag.Parse()
@@ -38,16 +25,10 @@ func init() {
 var token string
 var cfgPath string
 
-// BotConfig is the config for app.
-var BotConfig *botConfig
-
-// DBSession is the BoltDB session for the app.
-var DBSession *bolt.DB
-
 func main() {
 
 	// Load config for app
-	BotConfig, err := newConfig(cfgPath)
+	botCfg, err := config.New(cfgPath)
 
 	if err != nil {
 		log.Fatalf("Error whilst trying to read config file at %s: %v", cfgPath, err)
@@ -55,18 +36,18 @@ func main() {
 	}
 
 	// Create new log file for app
-	f, err := logging.CreateLogFile(BotConfig.Logging.Path, BotConfig.App.Name)
+	f, err := logging.CreateLogFile(botCfg.Logging.Path, botCfg.App.Name)
 	defer f.Close()
 
 	// Open database session
-	DBSession, err := bolt.Open(BotConfig.DB.Name, BotConfig.DB.Mode, nil)
+	DBSession, err := bolt.Open(botCfg.DB.Name, botCfg.DB.Mode, nil)
 	if err != nil {
 		log.Fatalf("Error creating database session: %v", err)
 		return
 	}
 	defer DBSession.Close()
 
-	botHandlers := handlers.New(DBSession)
+	botHandlers := handlers.New(botCfg, DBSession)
 
 	// Create new instance of discord go
 	discord, err := discordgo.New("Bot " + token)
@@ -92,26 +73,4 @@ func main() {
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
 	log.Println("Kill signal received - exiting bot...")
-}
-
-func newConfig(cfgPath string) (*botConfig, error) {
-	cfg := &botConfig{}
-
-	f, err := os.Open(cfgPath)
-
-	if err != nil {
-		log.Fatalf("Error opening config file sat %s: %v", cfgPath, err)
-		return nil, err
-	}
-
-	defer f.Close()
-
-	d := yaml.NewDecoder(f)
-
-	if err := d.Decode(&cfg); err != nil {
-		log.Fatalf("Error decoding config file: %v", err)
-		return nil, err
-	}
-
-	return cfg, nil
 }

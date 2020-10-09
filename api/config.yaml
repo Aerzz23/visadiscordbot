@@ -3,8 +3,13 @@
 db:
     name: discordbot.db
     mode: 0600
+    buckets: 
+        events: events
+        users: users
 logging:
     # Change to local path - will update later for docker location 
     path: /home/aerzz/proj/visabot
 app:
     name: visadiscordbot
+    assets:
+        embedLogo: https://cdn.visa.com/cdn/assets/images/logos/visa/logo.png

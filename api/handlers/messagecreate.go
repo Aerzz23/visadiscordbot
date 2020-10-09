@@ -6,9 +6,17 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/aerzz23/visadiscordbot/api/config"
 	"github.com/aerzz23/visadiscordbot/api/events"
 	"github.com/boltdb/bolt"
 	"github.com/bwmarrin/discordgo"
+)
+
+const (
+	newEventCmd   = "NewEvent"
+	showEventsCmd = "ShowEvents"
+	generalErrMsg = "Oops <@%s> - sommething wrong happened! Please try again."
+	logoKey       = "embedLogo"
 )
 
 // MessageCreateHandler is a handler for when Discord messages are sent within the channel.
@@ -31,7 +39,8 @@ func (bh *BotHandlersImpl) MessageCreateHandler(s *discordgo.Session, m *discord
 			}
 		}
 	}
-
+	// TODO put code into separate files or funcs at least as handler is getting complex and should just be switch
+	// TODO replace with switch statement
 	// Respond to Hi with a Hi back to Author
 	if mentioned && strings.Contains(m.Content, "Hi") {
 		log.Println("Hi Message Received")
@@ -39,8 +48,9 @@ func (bh *BotHandlersImpl) MessageCreateHandler(s *discordgo.Session, m *discord
 		return
 	}
 
+	// TODO Change how command works - needs to be separated using commas or something for multi string inputs
 	// Add a new event to DB if user uses NewEvent command.
-	if mentioned && strings.Contains(m.Content, "NewEvent") {
+	if mentioned && strings.Contains(m.Content, newEventCmd) {
 		log.Println(fmt.Sprintf("NewEvent triggered by %s. Message: %s", m.Author, m.Content))
 		inputSlice := strings.Fields(m.Content)[2:]
 
@@ -58,21 +68,49 @@ func (bh *BotHandlersImpl) MessageCreateHandler(s *discordgo.Session, m *discord
 			inputSlice = append(inputSlice, "false", "0")
 		}
 
-		err := createDiscordEvent(bh.db, inputSlice)
+		err := createDiscordEvent(bh.cfg, bh.db, inputSlice)
 
 		if err != nil {
 			log.Println(fmt.Sprintf("Error creating Discord event: %v", err))
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Oops <@%s> - sommething wrong happened! Please try again.", m.Author.ID))
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(generalErrMsg, m.Author.ID))
 			return
 		}
 
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("OK. <@%s> - Your event has been added!", m.Author.ID))
 		return
 	}
+
+	if mentioned && strings.Contains(m.Content, showEventsCmd) {
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Sure <@%s>, getting events...", m.Author.ID))
+		allEvents, err := events.GetAll(bh.cfg, bh.db)
+
+		if err != nil {
+			log.Println(fmt.Sprintf("Error getting all events from DB. Error: %v", err))
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(generalErrMsg, m.Author.ID))
+			return
+		}
+
+		eventsAsTable := events.FormatAsTable(allEvents)
+
+		embed := discordgo.MessageEmbed{
+			Title: "Visa Games Events",
+			Type:  discordgo.EmbedTypeRich,
+			Fields: []*discordgo.MessageEmbedField{
+				{
+					Name:  "Table",
+					Value: eventsAsTable,
+				},
+			},
+		}
+
+		s.ChannelMessageSendEmbed(m.ChannelID, &embed)
+		return
+	}
+
 }
 
 // createDiscordEvent takes string inputs, makes a new Event type with them, and then calls Create function to add to DB.
-func createDiscordEvent(db *bolt.DB, inputs []string) error {
+func createDiscordEvent(cfg *config.BotConfig, db *bolt.DB, inputs []string) error {
 	alert, err := strconv.ParseBool(inputs[4])
 	if err != nil {
 		log.Println(fmt.Sprintf("Error trying to parse alert as bool, was given %s. Error: %v", inputs[4], err))
@@ -92,5 +130,5 @@ func createDiscordEvent(db *bolt.DB, inputs []string) error {
 		log.Println(fmt.Printf("Error creating new event. Error: %v", err))
 		return err
 	}
-	return event.Create(db)
+	return event.Create(cfg, db)
 }
