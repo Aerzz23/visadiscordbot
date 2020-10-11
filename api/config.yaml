@@ -8,7 +8,7 @@ db:
         users: users
 logging:
     # Change to local path - will update later for docker location 
-    path: /home/aerzz/proj/visabot
+    path: /
 app:
     name: visadiscordbot
     assets:

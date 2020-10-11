@@ -10,12 +10,11 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/api",
-            "env": {},
-            "args": [
-                "-t",
-                "replace_with_your_discord_token",
-                "-c",
-                "replace_with_your_config_path"]
+            "env": {
+                "VISA_BOT_TOKEN": "PUT_YOUR_BOT_TOKEN_HERE",
+                "VISA_BOT_CONFIG": "PUT_YOUR_CONFIG_FILE_PATH_HERE"
+            },
+            "args": []
         }
     ]
 }

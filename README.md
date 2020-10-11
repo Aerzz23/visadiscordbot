@@ -13,13 +13,27 @@ Additonal instructions are also provided for Docker.
 * [Go 1.15](https://golang.org/dl/)
 * [Docker](https://www.docker.com/products/docker-desktop)
 
-### Installing
+### Running
+
+#### Go Local
 
 ```bash
 git clone https://github.com/Aerzz23/visadiscordbot.git
 cd visadiscordbot
+export VISA_BOT_CONFIG="YOUR_CONFIG_PATH_HERE" # absolute path
+export VISA_BOT_TOKEN="YOUR_DISCORD_BOT_TOKEN_HERE" # https://discord.com/developers/applications
 go get -u
-go run api/main.go -t "your_discord_api_token" -c "config_path"
+go run api/main.go
+
+```
+
+#### Docker
+
+```bash
+git clone https://github.com/Aerzz23/visadiscordbot.git
+cd visadiscordbot
+docker build -t aerzz23/visadiscordbot:latest .
+docker run --env VISA_BOT_TOKEN=YOUR_DISCORD_BOT_TOKEN_HERE aerzz23/visadiscordbot # https://discord.com/developers/
 
 ```
 
@@ -46,6 +60,7 @@ ginkgo ./...
 
 * [Go 1.15](https://golang.org/doc/) - Programming Language
 * [DiscordGo](https://github.com/bwmarrin/discordgo) - Go bindings for Discord
+* [ASCII Table Writer](https://github.com/olekukonko/tablewriter) - Go library for  ASCII formatted tables
 * [BoltDB](https://github.com/boltdb/bolt) - Database
 * [Ginkgo](https://github.com/onsi/ginkgo) - BDD Testing Framework
 * [Docker](https://docs.docker.com/) - Containerization

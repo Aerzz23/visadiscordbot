@@ -130,5 +130,6 @@ func createDiscordEvent(cfg *config.BotConfig, db *bolt.DB, inputs []string) err
 		log.Println(fmt.Printf("Error creating new event. Error: %v", err))
 		return err
 	}
+
 	return event.Create(cfg, db)
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -15,15 +14,20 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func init() {
-	// TODO change this to be environment variables
-	flag.StringVar(&token, "t", "", "Bot Token")
-	flag.StringVar(&cfgPath, "c", "config.yaml", "Config file")
-	flag.Parse()
-}
+const (
+	tokenEnv = "VISA_BOT_TOKEN"
+	cfgEnv   = "VISA_BOT_CONFIG"
+)
 
-var token string
-var cfgPath string
+var (
+	token   string
+	cfgPath string
+)
+
+func init() {
+	token = os.Getenv(tokenEnv)
+	cfgPath = os.Getenv(cfgEnv)
+}
 
 func main() {
 

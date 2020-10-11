@@ -12,7 +12,6 @@ import (
 	"github.com/aerzz23/visadiscordbot/api/config"
 	"github.com/boltdb/bolt"
 	"github.com/olekukonko/tablewriter"
-	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -21,7 +20,7 @@ const (
 
 // Event is a struct which aids with JSON marshalling
 type Event struct {
-	ID        int       `json:"id"`
+	ID        uint64    `json:"id"`
 	CreatedAt time.Time `json:"createdAt"`
 	EventDate time.Time `json:"date"`
 	EventTime time.Time `json:"eventTime"`
@@ -62,11 +61,11 @@ func New(eventDate string, eventTime string, eventName string, eventInfo string,
 func (e *Event) Create(cfg *config.BotConfig, db *bolt.DB) error {
 	// serialize event ready for easy insert into BoltDB
 	eventSerialized, err := json.Marshal(e)
+
 	if err != nil {
 		log.Fatalf("Error serializing event: %v", err)
 		return err
 	}
-
 	// make bucket if not there and add event to db
 	return db.Update(func(tx *bolt.Tx) error {
 
@@ -102,6 +101,43 @@ func (e *Event) Create(cfg *config.BotConfig, db *bolt.DB) error {
 
 		return nil
 	})
+}
+
+// GetAll returns all Discord events in DB.
+func GetAll(cfg *config.BotConfig, db *bolt.DB) ([]Event, error) {
+	upcomingEvents := []Event{}
+	err := db.View(func(tx *bolt.Tx) error {
+		// TODO fix error when bucket is nil
+		b := tx.Bucket([]byte(cfg.DB.Buckets[eventBucketKey]))
+		if b == nil {
+			// return because no bucket = no data
+			log.Println(fmt.Sprintf("Bucket %s does not exist. Returning no events.", cfg.DB.Buckets[eventBucketKey]))
+			return nil
+		}
+		err := b.ForEach(func(k, v []byte) error {
+			event := Event{}
+			err := json.Unmarshal(v, &event)
+			if err != nil {
+				log.Println(fmt.Sprintf("Error whilst unmarshalling event row from DB. Error: %v", err))
+				return err
+			}
+			keyAsInt := binary.BigEndian.Uint64(k)
+			event.ID = keyAsInt
+			upcomingEvents = append(upcomingEvents, event)
+			return nil
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return upcomingEvents, err
+	}
+
+	return upcomingEvents, nil
 }
 
 // Map takes in a slice of Events and will create a new slice of given type using the provided function.
@@ -143,36 +179,6 @@ func FormatAsTable(events []Event) string {
 	table.Render()
 
 	return tableString.String()
-}
-
-// GetAll returns all Discord events in DB.
-func GetAll(cfg *config.BotConfig, db *bolt.DB) ([]Event, error) {
-	upcomingEvents := []Event{}
-	err := db.View(func(tx *bolt.Tx) error {
-		// TODO fix error when bucket is nil
-		b := tx.Bucket([]byte(cfg.DB.Buckets[eventBucketKey]))
-		err := b.ForEach(func(k, v []byte) error {
-			var event Event
-			err := yaml.Unmarshal(v, &event)
-			if err != nil {
-				log.Println(fmt.Sprintf("Error whilst unmarshalling event row from DB. Error: %v", err))
-				return err
-			}
-			upcomingEvents = append(upcomingEvents, event)
-			return nil
-		})
-
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-	if err != nil {
-		return upcomingEvents, err
-	}
-
-	return upcomingEvents, nil
 }
 
 // TODO add upcoming events (so filtered by date/time in future)
