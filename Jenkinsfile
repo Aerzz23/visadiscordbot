@@ -5,9 +5,10 @@ pipeline {
   }
   stages {
     stage('Go Build'){
-      sh 'go get -u ./...'
-      sh 'go build api/'
-
+      steps {
+        sh 'go get -u ./...'
+        sh 'go build api/'
+      }
     }
     stage('Go Test') {
       steps {
