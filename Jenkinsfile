@@ -6,7 +6,7 @@ pipeline {
   stages {
     stage('Go Build'){
       steps {
-        sh 'export XDG_CACHE_HOME=/home/pi/go-build-cache'
+        sh 'export GOCACHE=/home/pi/go-build-cache'
         sh 'go get -u ./...'
         sh 'go build api/'
       }
