@@ -8,8 +8,10 @@ pipeline {
   stages {
     stage('Go Build'){
       steps {
+        sh 'export GOROOT='
         sh 'go get -u ./...'
-        sh 'go build api/'
+        sh 'ls -ltra'
+        sh 'go build ./...'
       }
     }
     stage('Go Test') {
