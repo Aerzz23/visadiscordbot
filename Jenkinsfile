@@ -6,7 +6,6 @@ pipeline {
       docker {
       image 'golang:1.15.3'
       args '--mount src=/home/pi/go-build-cache,target=/.cache,type=bind'}
-    }
       steps {
         sh 'go get -u ./...'
         sh 'ls -ltra'
@@ -16,8 +15,8 @@ pipeline {
     stage('Go Test') {
       docker {
       image 'golang:1.15.3'
-      args '--mount src=/home/pi/go-build-cache,target=/.cache,type=bind'}
-    }
+      args '--mount src=/home/pi/go-build-cache,target=/.cache,type=bind'
+      }
       steps {
         sh 'go test ./...'
       }
@@ -32,6 +31,5 @@ pipeline {
         sh 'docker push aerzz23/visadiscordbot:latest'
       }
     }
-
   }
 }
