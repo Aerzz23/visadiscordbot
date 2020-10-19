@@ -1,11 +1,13 @@
 pipeline {
   agent any
- 
   stages {
     stage('Go Build'){
+     agent{ 
       docker {
-      image 'golang:1.15.3'
-      args '--mount src=/home/pi/go-build-cache,target=/.cache,type=bind'}
+        image 'golang:1.15.3'
+        args '--mount src=/home/pi/go-build-cache,target=/.cache,type=bind'
+        }
+      }
       steps {
         sh 'go get -u ./...'
         sh 'ls -ltra'
@@ -13,9 +15,11 @@ pipeline {
       }
     }
     stage('Go Test') {
-      docker {
-      image 'golang:1.15.3'
-      args '--mount src=/home/pi/go-build-cache,target=/.cache,type=bind'
+      agent{
+        docker {
+        image 'golang:1.15.3'
+        args '--mount src=/home/pi/go-build-cache,target=/.cache,type=bind'
+        }
       }
       steps {
         sh 'go test ./...'
@@ -26,10 +30,10 @@ pipeline {
         sh 'docker build -t aerzz23/visadiscordbot:latest .'
       }
     }
-     stage('Docker Push') {
-      steps {
-        sh 'docker push aerzz23/visadiscordbot:latest'
-      }
+    stage('Docker Push') {
+    steps {
+      sh 'docker push aerzz23/visadiscordbot:latest'
     }
+  }
   }
 }
