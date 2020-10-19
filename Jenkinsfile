@@ -1,12 +1,13 @@
 pipeline {
   agent {
-    docker {image 'golang:1.15.3'}
+    docker {
+      image 'golang:1.15.3'
+      args '--v /home/pi/go-build-cache:/.cache'}
 
   }
   stages {
     stage('Go Build'){
       steps {
-        sh 'export GOCACHE=/home/pi/go-build-cache'
         sh 'go get -u ./...'
         sh 'go build api/'
       }
