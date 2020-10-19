@@ -40,5 +40,24 @@ pipeline {
           }
       }
     }
+    stage('Docker Deploy') {
+      when {
+        branch 'master'
+      }
+      environment {
+        DISCORD_BOT_TOKEN = credentials('discord_token')
+      }
+      steps {
+        sshagent(credentials : ['rpi_ssh']) {
+          sh 'docker stop $(docker ps -a -q)'
+          sh 'docker rm $(docker ps -a -q)'
+          withDockerRegistry([ credentialsId: "dockerhub_id", url: "" ]) {
+            sh "docker pull aerzz23/visadiscordbot:latest"
+            sh 'docker run --env VISA_BOT_TOKEN=${DISCORD_BOT_TOKEN} aerzz23/visadiscordbot:latest'
+          }
+        }
+       
+      }
+    }
   }
 }
