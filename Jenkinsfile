@@ -2,7 +2,7 @@ pipeline {
   agent {
     docker {
       image 'golang:1.15.3'
-      args '--mount /home/pi/go-build-cache:/.cache'}
+      args '--mount src=/home/pi/go-build-cache,target=/.cache,type=bind'}
 
   }
   stages {
