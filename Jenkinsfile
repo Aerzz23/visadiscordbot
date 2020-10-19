@@ -36,7 +36,7 @@ pipeline {
       }
       steps {
         withDockerRegistry([ credentialsId: "dockerhub_id", url: "" ]) {
-          bat "docker push aerzz23/visadiscordbot:latest"
+          sh "docker push aerzz23/visadiscordbot:latest"
           }
       }
     }
