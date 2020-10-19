@@ -30,10 +30,15 @@ pipeline {
         sh 'docker build -t aerzz23/visadiscordbot:latest .'
       }
     }
-    stage('Docker Push') {
-    steps {
-      sh 'docker push aerzz23/visadiscordbot:latest'
+    stage('Docker Publish') {
+      when {
+        branch 'master'
+      }
+      steps {
+        withDockerRegistry([ credentialsId: "dockerhub_id", url: "" ]) {
+          bat "docker push aerzz23/visadiscordbot:latest"
+          }
+      }
     }
-  }
   }
 }
