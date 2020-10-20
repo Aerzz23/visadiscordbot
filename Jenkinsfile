@@ -61,7 +61,8 @@ pipeline {
           withDockerRegistry([ credentialsId: "dockerhub_id", url: "" ]) {
             sh '''docker pull aerzz23/visadiscordbot:latest
                   export BUILD_ID=dontKillMe
-                  nohup docker run --env VISA_BOT_TOKEN=${DISCORD_BOT_TOKEN} aerzz23/visadiscordbot:latest'''
+                  export JENKINS_NODE_COOKIE=dontKillMe
+                  nohup docker run --env VISA_BOT_TOKEN=${DISCORD_BOT_TOKEN} aerzz23/visadiscordbot:latest &'''
           }
         }
        
