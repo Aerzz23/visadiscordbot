@@ -40,8 +40,16 @@ func main() {
 	}
 
 	// Create new log file for app
+	if _, err := os.Stat(botCfg.Logging.Path); os.IsNotExist(err) {
+		err = os.Mkdir(botCfg.Logging.Path, os.ModePerm)
+	}
 	f, err := logging.CreateLogFile(botCfg.Logging.Path, botCfg.App.Name)
-	defer f.Close()
+	defer func() {
+		if closeErr := f.Close(); closeErr != nil {
+			log.Fatal("Error closing log file")
+			err = closeErr
+		}
+	}()
 
 	// Open database session
 	DBSession, err := bolt.Open(botCfg.DB.Name, botCfg.DB.Mode, nil)
@@ -49,7 +57,12 @@ func main() {
 		log.Fatalf("Error creating database session: %v", err)
 		return
 	}
-	defer DBSession.Close()
+	defer func() {
+		if closeErr := DBSession.Close(); closeErr != nil {
+			log.Fatal("Error closing DB session")
+			err = closeErr
+		}
+	}()
 
 	botHandlers := handlers.New(botCfg, DBSession)
 
@@ -66,8 +79,17 @@ func main() {
 
 	// Open connection to Discord
 	log.Println("Opening websocket to Discord")
-	discord.Open()
-	defer discord.Close()
+	err = discord.Open()
+	if err != nil {
+		log.Fatalf("Error whilst trying to open websocket to Discord: %v", err)
+		return
+	}
+	defer func() {
+		if closeErr := discord.Close(); closeErr != nil {
+			log.Fatal("Error closing Discord session")
+			err = closeErr
+		}
+	}()
 
 	log.Println("Bot up and running!")
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")

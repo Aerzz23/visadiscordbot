@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/aerzz23/visadiscordbot/api/netflix"
 	"log"
 	"strconv"
 	"strings"
@@ -15,7 +16,8 @@ import (
 const (
 	newEventCmd   = "NewEvent"
 	showEventsCmd = "ShowEvents"
-	generalErrMsg = "Oops <@%s> - sommething wrong happened! Please try again."
+	newNetflixSuggestionCmd = "NewNetflixSuggestion"
+	generalErrMsg = "Oops <@%s> - something wrong happened! Please try again."
 	logoKey       = "embedLogo"
 )
 
@@ -27,7 +29,7 @@ func (bh *BotHandlersImpl) MessageCreateHandler(s *discordgo.Session, m *discord
 		return
 	}
 
-	var mentioned bool = false
+	var mentioned = false
 
 	// Check to see if Bot was mentioned - otherwise ignore message (might still other things where message created without mention TBD)
 	if len(m.Mentions) > 0 {
@@ -107,6 +109,18 @@ func (bh *BotHandlersImpl) MessageCreateHandler(s *discordgo.Session, m *discord
 		return
 	}
 
+
+	// Add a new Netflix suggestion to DB if user uses NewNetflixSuggestion command.
+	if mentioned && strings.Contains(m.Content, newNetflixSuggestionCmd) {
+		log.Println(fmt.Sprintf("NewNetflixSuggestion triggered by %s. Message: %s", m.Author, m.Content))
+		suggestions := strings.Fields(m.Content)[2:]
+		err := updateNetflixSuggestions(m.Author, bh.db, suggestions)
+		if err != nil {
+			log.Println(fmt.Printf("Error updating netflix suggestions. Error: %v", err))
+			return
+		}
+	}
+
 }
 
 // createDiscordEvent takes string inputs, makes a new Event type with them, and then calls Create function to add to DB.
@@ -132,4 +146,17 @@ func createDiscordEvent(cfg *config.BotConfig, db *bolt.DB, inputs []string) err
 	}
 
 	return event.Create(cfg, db)
+}
+
+func updateNetflixSuggestions(author *discordgo.User, db *bolt.DB, suggestions []string) error {
+	for _, suggestion := range suggestions {
+		// Here I would check the availability...IF THERE WAS A FREE API
+		ns := netflix.New(suggestion, author.Username)
+		err := ns.Create(db, author.Username)
+		if err != nil {
+			log.Println(fmt.Printf("Error updating Netflix Suggestions. Error: %v", err))
+			return err
+		}
+	}
+	return nil
 }

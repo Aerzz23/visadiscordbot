@@ -19,3 +19,6 @@ vendor/
 
 # Ignore BoltDB files
 *.db
+
+# Ignore idea folder
+.idea/
