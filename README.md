@@ -6,7 +6,7 @@ VisaDiscordBot is a Discord Bot written in Go for the Visa Discord Channel.
 
 These instructions will help you get a copy of the project up and running on your local machine.
 
-Additonal instructions are also provided for Docker.
+Additional instructions are also provided for Docker.
 
 ### Prerequisites
 
@@ -22,7 +22,8 @@ git clone https://github.com/Aerzz23/visadiscordbot.git
 cd visadiscordbot
 export VISA_BOT_CONFIG="YOUR_CONFIG_PATH_HERE" # absolute path
 export VISA_BOT_TOKEN="YOUR_DISCORD_BOT_TOKEN_HERE" # https://discord.com/developers/applications
-go get -u
+go get -u ./...
+go get github.com/br0xen/boltbrowser
 go run api/main.go
 
 ```
@@ -55,6 +56,15 @@ cd visadiscordbot
 ginkgo ./...
 
 ```
+
+#### To read the boltdb file
+
+```bash
+
+boltbrowser *db-file*
+
+```
+
 
 ## Built With
 
