@@ -49,8 +49,15 @@ pipeline {
       }
       steps {
         sshagent(credentials : ['rpi_ssh']) {
-          sh 'docker stop $(docker ps -a -q)'
-          sh 'docker rm $(docker ps -a -q)'
+          sh '''if [ -z "$(docker ps -a -q)" ]
+                then
+                      echo "no docker containers found"
+                else
+                      echo "docker containers found - stopping and removing"
+                      docker stop $(docker ps -a -q)
+                      docker rm $(docker ps -a -q)
+                fi
+          '''
           withDockerRegistry([ credentialsId: "dockerhub_id", url: "" ]) {
             sh "docker pull aerzz23/visadiscordbot:latest"
             sh 'docker run --env VISA_BOT_TOKEN=${DISCORD_BOT_TOKEN} aerzz23/visadiscordbot:latest'
